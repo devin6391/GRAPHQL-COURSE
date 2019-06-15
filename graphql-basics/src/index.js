@@ -1,5 +1,5 @@
 import { GraphQLServer } from "graphql-yoga";
-import addFunc from "./math";
+import uuidv4 from "uuid/v4";
 
 const allComments = [
   {
@@ -86,11 +86,15 @@ const allPosts = [
 // TYpe defs (schema)
 const typeDefs = `
     type Query {
-        me: User!
-        post: Post!
         users(query: String): [User!]!
         posts(query: String): [Post!]!
         comments: [Comment!]!
+    }
+
+    type Mutation {
+      createUser(name: String!, email: String!, age: Int): User!
+      createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
+      createComment(text: String!, author: ID!, post: ID!): Comment!
     }
 
     type User {
@@ -141,23 +145,76 @@ const resolvers = {
           (post.body && post.body.toLowerCase().includes(query.toLowerCase()))
       );
     },
-    me() {
-      return {
-        id: "abc123",
-        name: "Vinett",
-        email: "vin@dev",
-        age: 28
-      };
-    },
-    post() {
-      return {
-        id: "234@12",
-        title: "First post",
-        published: false
-      };
-    },
     comments() {
       return allComments;
+    }
+  },
+  Mutation: {
+    createUser(parent, args, ctx, info) {
+      const { name, email, age } = args;
+      const emailTaken = allUsers.some(user => user.email === email);
+
+      if (emailTaken) {
+        throw new Error("Email taken.");
+      }
+
+      const user = {
+        id: uuidv4(),
+        name,
+        age,
+        email
+      };
+
+      allUsers.push(user);
+
+      return user;
+    },
+    createPost(parent, args, ctx, info) {
+      const { author, title, body, published } = args;
+      const userExist = allUsers.some(user => user.id === author);
+
+      if (!userExist) {
+        throw new Error("User doesn't exist");
+      }
+
+      const post = {
+        id: uuidv4(),
+        title,
+        body,
+        published,
+        author
+      };
+
+      allPosts.push(post);
+
+      return post;
+    },
+    createComment(parent, args, ctx, info) {
+      const { text, author, post } = args;
+
+      const userExist = allUsers.some(user => user.id === author);
+      const postExist = allPosts.some(
+        posta => posta.id === post && posta.published
+      );
+
+      if (!userExist) {
+        throw new Error("User does not exists");
+      }
+
+      if (!postExist) {
+        throw new Error("Post doesn't exists");
+      }
+
+      const comment = {
+        id: uuidv4(),
+        text,
+        author,
+        post
+      };
+
+      allComments.push(comment);
+
+      return comment;
     }
   },
   Post: {
