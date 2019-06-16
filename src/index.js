@@ -1,85 +1,85 @@
 import { GraphQLServer } from "graphql-yoga";
 import uuidv4 from "uuid/v4";
 
-const allComments = [
+let allUsers = [
   {
-    id: "a",
-    text: "Comment 1 first post",
-    author: "553",
-    post: "1"
-  },
-  {
-    id: "b",
-    text: "Comment 2 first post",
-    author: "189",
-    post: "1"
-  },
-  {
-    id: "c",
-    text: "Comment 1 second post",
-    author: "123",
-    post: "2"
-  },
-  {
-    id: "d",
-    text: "Comment 2 second post",
-    author: "553",
-    post: "2"
-  },
-  {
-    id: "e",
-    text: "Comment 1 third post",
-    author: "553",
-    post: "3"
-  },
-  {
-    id: "f",
-    text: "Comment 2 third post",
-    author: "189",
-    post: "3"
-  }
-];
-
-const allUsers = [
-  {
-    id: "123",
+    id: "1",
     name: "Vineet",
     email: "Vin@eet",
     age: 28
   },
   {
-    id: "553",
+    id: "2",
     name: "Dev",
     email: "De@eet",
     age: 28
   },
   {
-    id: "189",
+    id: "3",
     name: "Deepu",
     email: "Vin@epu"
   }
 ];
 
-const allPosts = [
+let allPosts = [
   {
-    id: "1",
+    id: "11",
     title: "This is first post",
     body: "",
     published: true,
-    author: "123"
+    author: "1"
   },
   {
-    id: "2",
+    id: "31",
     title: "This is second post",
     published: true,
-    author: "189"
+    author: "3"
   },
   {
-    id: "3",
+    id: "12",
     title: "This is third post",
     body: "This post is related to first post",
     published: false,
-    author: "123"
+    author: "1"
+  }
+];
+
+let allComments = [
+  {
+    id: "111",
+    text: "Comment 1 first post",
+    author: "2",
+    post: "11"
+  },
+  {
+    id: "112",
+    text: "Comment 2 first post",
+    author: "3",
+    post: "11"
+  },
+  {
+    id: "311",
+    text: "Comment 1 second post",
+    author: "1",
+    post: "31"
+  },
+  {
+    id: "312",
+    text: "Comment 2 second post",
+    author: "3",
+    post: "31"
+  },
+  {
+    id: "121",
+    text: "Comment 1 third post",
+    author: "2",
+    post: "12"
+  },
+  {
+    id: "122",
+    text: "Comment 2 third post",
+    author: "1",
+    post: "12"
   }
 ];
 
@@ -93,8 +93,11 @@ const typeDefs = `
 
     type Mutation {
       createUser(data: CreateUserInput!): User!
+      deleteUser(id: ID!): User!
       createPost(data: CreatePostInput!): Post!
+      deletePost(id: ID!): Post!
       createComment(data: CreateCommentInput!): Comment!
+      deleteComment(id: ID!): Comment!
     }
 
     input CreateUserInput {
@@ -186,6 +189,30 @@ const resolvers = {
 
       return user;
     },
+    deleteUser(parent, args, ctx, info) {
+      const { id } = args;
+      const userIndex = allUsers.findIndex(user => user.id === id);
+
+      if (userIndex === -1) {
+        throw new Error("No user found");
+      }
+
+      allPosts = allPosts.filter(post => {
+        const postFound = post.author === id;
+
+        if (postFound) {
+          allComments = allComments.filter(comment => comment.post !== post.id);
+        }
+
+        return !postFound;
+      });
+
+      allComments = allComments.filter(comment => comment.author !== id);
+
+      const deletedUsers = allUsers.splice(userIndex, 1);
+
+      return deletedUsers[0];
+    },
     createPost(parent, args, ctx, info) {
       const { author } = args.data;
       const userExist = allUsers.some(user => user.id === author);
@@ -202,6 +229,21 @@ const resolvers = {
       allPosts.push(post);
 
       return post;
+    },
+    deletePost(parent, args, ctx, info) {
+      const { id } = args;
+
+      const postToBeDeleted = allPosts.find(post => post.id === id);
+
+      if (!postToBeDeleted) {
+        throw new Error("Post not found");
+      }
+
+      allPosts = allPosts.filter(post => post.id !== id);
+
+      allComments = allComments.filter(comment => comment.post !== id);
+
+      return postToBeDeleted;
     },
     createComment(parent, args, ctx, info) {
       const { author, post } = args.data;
@@ -227,6 +269,12 @@ const resolvers = {
       allComments.push(comment);
 
       return comment;
+    },
+    deleteComment(parent, args, ctx, info) {
+      const { id } = args;
+      const commentDeleted = allComments.find(comment => comment.id === id);
+      allComments = allComments.filter(comment => comment.id !== id);
+      return commentDeleted;
     }
   },
   Post: {
