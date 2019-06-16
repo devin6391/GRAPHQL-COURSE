@@ -92,9 +92,28 @@ const typeDefs = `
     }
 
     type Mutation {
-      createUser(name: String!, email: String!, age: Int): User!
-      createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
-      createComment(text: String!, author: ID!, post: ID!): Comment!
+      createUser(data: CreateUserInput!): User!
+      createPost(data: CreatePostInput!): Post!
+      createComment(data: CreateCommentInput!): Comment!
+    }
+
+    input CreateUserInput {
+      name: String!
+      email: String!
+      age: Int
+    }
+
+    input CreatePostInput {
+      title: String!
+      body: String!
+      published: Boolean!
+      author: ID!
+    }
+
+    input CreateCommentInput {
+      text: String!
+      author: ID!
+      post: ID!
     }
 
     type User {
@@ -151,7 +170,7 @@ const resolvers = {
   },
   Mutation: {
     createUser(parent, args, ctx, info) {
-      const { name, email, age } = args;
+      const { email } = args.data;
       const emailTaken = allUsers.some(user => user.email === email);
 
       if (emailTaken) {
@@ -160,9 +179,7 @@ const resolvers = {
 
       const user = {
         id: uuidv4(),
-        name,
-        age,
-        email
+        ...args.data
       };
 
       allUsers.push(user);
@@ -170,7 +187,7 @@ const resolvers = {
       return user;
     },
     createPost(parent, args, ctx, info) {
-      const { author, title, body, published } = args;
+      const { author } = args.data;
       const userExist = allUsers.some(user => user.id === author);
 
       if (!userExist) {
@@ -179,10 +196,7 @@ const resolvers = {
 
       const post = {
         id: uuidv4(),
-        title,
-        body,
-        published,
-        author
+        ...args.data
       };
 
       allPosts.push(post);
@@ -190,7 +204,7 @@ const resolvers = {
       return post;
     },
     createComment(parent, args, ctx, info) {
-      const { text, author, post } = args;
+      const { author, post } = args.data;
 
       const userExist = allUsers.some(user => user.id === author);
       const postExist = allPosts.some(
@@ -207,9 +221,7 @@ const resolvers = {
 
       const comment = {
         id: uuidv4(),
-        text,
-        author,
-        post
+        ...args.data
       };
 
       allComments.push(comment);
