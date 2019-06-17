@@ -89,6 +89,12 @@ const Mutation = {
 
     allPosts.push(post);
 
+    if (post.published) {
+      ctx.pubsub.publish("post", {
+        post: { mutation: "CREATED", data: post }
+      });
+    }
+
     return post;
   },
   deletePost(parent, args, ctx, info) {
@@ -105,6 +111,12 @@ const Mutation = {
 
     allComments = allComments.filter(comment => comment.post !== id);
 
+    if (postToBeDeleted.published) {
+      ctx.pubsub.publish("post", {
+        post: { mutation: "DELETED", data: post }
+      });
+    }
+
     return postToBeDeleted;
   },
   updatePost(parent, args, ctx, info) {
@@ -113,6 +125,7 @@ const Mutation = {
     const { title, body, published } = data;
 
     const post = allPosts.find(post => post.id === id);
+    const originalPost = { ...post };
 
     if (!post) {
       throw new Error("Post not found");
@@ -128,6 +141,20 @@ const Mutation = {
 
     if (typeof published !== "undefined") {
       post.published = published;
+
+      if (originalPost.published && !post.published) {
+        ctx.pubsub.publish("post", {
+          post: { mutation: "DELETED", data: originalPost }
+        });
+      } else if (!originalPost.published && post.published) {
+        ctx.pubsub.publish("post", {
+          post: { mutation: "CREATED", data: post }
+        });
+      }
+    } else if (post.published) {
+      ctx.pubsub.publish("post", {
+        post: { mutation: "UPDATED", data: post }
+      });
     }
 
     return post;
@@ -135,6 +162,7 @@ const Mutation = {
   createComment(parent, args, ctx, info) {
     const { allPosts, allUsers, allComments } = ctx.db;
     const { author, post } = args.data;
+    const { pubsub } = ctx;
 
     const userExist = allUsers.some(user => user.id === author);
     const postExist = allPosts.some(
@@ -155,6 +183,12 @@ const Mutation = {
     };
 
     allComments.push(comment);
+    pubsub.publish(`comment_${post}`, {
+      comment: {
+        mutation: "CREATED",
+        data: comment
+      }
+    });
 
     return comment;
   },
@@ -163,6 +197,12 @@ const Mutation = {
     const { id } = args;
     const commentDeleted = allComments.find(comment => comment.id === id);
     allComments = allComments.filter(comment => comment.id !== id);
+    ctx.pubsub.publish(`comment_${commentDeleted.post}`, {
+      comment: {
+        mutation: "DELETED",
+        data: commentDeleted
+      }
+    });
     return commentDeleted;
   },
   updateComment(parent, args, ctx, info) {
@@ -178,6 +218,12 @@ const Mutation = {
 
     if (typeof text === "string") {
       comment.text = text;
+      ctx.pubsub.publish(`comment_${comment.post}`, {
+        comment: {
+          mutation: "UPDATED",
+          data: comment
+        }
+      });
     }
 
     return comment;
