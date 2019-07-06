@@ -23,7 +23,7 @@ const updatePostForUser = async (postId, data) => {
     return updatedPost.author;
 }
 
-updatePostForUser("5d1a2ab70274390003387769", {
+updatePostForUser("cjxrnaho9001b078175eqo8bx", {
     title: "First update to first post",
     body: "The first updation is awesome",
     published: false
