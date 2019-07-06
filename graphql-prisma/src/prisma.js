@@ -5,10 +5,25 @@ const prisma = new Prisma({
     endpoint: 'http://localhost:4466'
 });
 
-prisma.query.users(null, '{id name posts {id title} }').then(data => {
-    console.log(JSON.stringify(data, undefined, 2));
-})
+const updatePostForUser = async (postId, data) => {
+    const isPostExist = await prisma.exists.Post({id: postId});
 
-prisma.query.comments(null, '{id text author {id name} }').then(data => {
-    console.log(JSON.stringify(data, undefined, 2));
-})
+    if(!isPostExist) {
+        throw new Error(`Post with id ${postId} doesn't exist`);
+    }
+
+    const updatedPost = await prisma.mutation.updatePost({
+        where: {
+            id: postId
+        },
+        data
+    }, '{ author { name posts { title body published } } }' );
+
+    return updatedPost.author;
+}
+
+updatePostForUser("5d1a2ab70274390003387769", {
+    title: "First update to first post",
+    body: "The first updation is awesome",
+    published: false
+}).then(user => console.log(JSON.stringify(user, null, 2))).catch(e => console.error(e))
