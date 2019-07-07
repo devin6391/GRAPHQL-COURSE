@@ -6,25 +6,27 @@ const prisma = new Prisma({
     endpoint: 'http://localhost:4466'
 });
 
-const updatePostForUser = async (postId, data) => {
-    const isPostExist = await prisma.exists.Post({id: postId});
+export default prisma;
 
-    if(!isPostExist) {
-        throw new Error(`Post with id ${postId} doesn't exist`);
-    }
+// const updatePostForUser = async (postId, data) => {
+//     const isPostExist = await prisma.exists.Post({id: postId});
 
-    const updatedPost = await prisma.mutation.updatePost({
-        where: {
-            id: postId
-        },
-        data
-    }, '{ author { name posts { title body published } } }' );
+//     if(!isPostExist) {
+//         throw new Error(`Post with id ${postId} doesn't exist`);
+//     }
 
-    return updatedPost.author;
-}
+//     const updatedPost = await prisma.mutation.updatePost({
+//         where: {
+//             id: postId
+//         },
+//         data
+//     }, '{ author { name posts { title body published } } }' );
 
-updatePostForUser("cjxrnaho9001b078175eqo8bx", {
-    title: "First update to first post",
-    body: "The first updation is awesome",
-    published: false
-}).then(user => console.log(JSON.stringify(user, null, 2))).catch(e => console.error(e))
+//     return updatedPost.author;
+// }
+
+// updatePostForUser("cjxrnaho9001b078175eqo8bx", {
+//     title: "First update to first post",
+//     body: "The first updation is awesome",
+//     published: false
+// }).then(user => console.log(JSON.stringify(user, null, 2))).catch(e => console.error(e))
