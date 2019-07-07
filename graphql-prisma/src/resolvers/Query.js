@@ -34,7 +34,17 @@ const Query = {
     return prisma.query.posts(opArgs, info);
   },
   comments(parent, args, ctx, info) {
-    return ctx.db.allComments;
+    const {prisma} = ctx;
+    const {query} = args;
+    const opArgs = {};
+
+    if(query) {
+      opArgs.where = {
+          text_contains: query
+      }
+    }
+
+    return prisma.query.comments(opArgs, info);
   }
 };
 
