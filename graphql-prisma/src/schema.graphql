@@ -1,8 +1,8 @@
 type Query {
-  users(query: String): [User!]!
-  posts(query: String): [Post!]!
-  myPosts(query: String): [Post!]!
-  comments(query: String): [Comment!]!
+  users(query: String, first: Int, skip: Int, after: String): [User!]!
+  posts(query: String, first: Int, skip: Int, after: String): [Post!]!
+  myPosts(query: String, first: Int, skip: Int, after: String): [Post!]!
+  comments(query: String, first: Int, skip: Int, after: String): [Comment!]!
   post(id: ID!): Post!
   me: User!
 }
@@ -21,7 +21,8 @@ type Mutation {
   createManyPosts: [Post!]!
   createManyComments: [Comment!]!
   deleteManyPosts(ids: [ID!]!): [Post!]!
-  deleteManyComments(ids: [ID!]!): [Comment!]!
+  deleteManyComments(ids: [ID!]!): [Comment]
+  deleteAllComments: BatchPayload!
 }
 
 type AuthPayload {
@@ -106,4 +107,8 @@ type PostSubscriptionPayload {
 type CommentSubscriptionPayload {
   mutation: MutationType!
   node: Comment
+}
+
+type BatchPayload {
+  count: Int!
 }

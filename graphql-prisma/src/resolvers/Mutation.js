@@ -272,7 +272,7 @@ const Mutation = {
       const noOfComments = generateRandomNumberTillTen();
 
       for (let i = 0; i < noOfComments; i++) {
-        const text = `This is comment no ${i + 1} for post ${post.title} created by '${user.name}' at ${Date.now()}`;
+        const text = `This is comment no ${i + 1} for post ${post.id} created by '${user.name}' at ${Date.now()}`;
         const data = {
           ...commonOpArgsData2,
           text
@@ -313,7 +313,7 @@ const Mutation = {
     const commnetPromises = []
     ids.forEach(async id => {
       const isCommentExist = await ctx.prisma.exists.Comment({
-        id: args.id,
+        id: id,
         author: {
           id: userId
         }
@@ -325,12 +325,23 @@ const Mutation = {
 
       commnetPromises.push(ctx.prisma.mutation.deleteComment({
         where: {
-          id: args.id
+          id: id
         }
       }, info));
     });
 
     return Promise.all(commnetPromises);
+  },
+  deleteAllComments(parent, args, ctx, info) {
+    const userId = getUserId(ctx.request);
+
+    return ctx.prisma.mutation.deleteManyComments({
+      where: {
+        author: {
+          id: userId
+        }
+      }
+    });
   },
   async updateComment(parent, args, ctx, info) {
     const userId = getUserId(ctx.request);

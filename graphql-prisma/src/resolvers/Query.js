@@ -2,11 +2,19 @@ import getUserId from '../utils/getUserId';
 
 const Query = {
   users(parent, args, ctx, info) {
-    const {prisma} = ctx;
-    const {query} = args;
-    const opArgs = {};
+    const {
+      prisma
+    } = ctx;
+    const {
+      query
+    } = args;
+    const opArgs = {
+      first: args.first,
+      skip: args.skip,
+      after: args.after
+    };
 
-    if(query) {
+    if (query) {
       opArgs.where = {
         OR: [{
           name_contains: query
@@ -17,28 +25,40 @@ const Query = {
     return prisma.query.users(opArgs, info);
   },
   posts(parent, args, ctx, info) {
-    const {prisma} = ctx;
-    const {query} = args;
+    const {
+      prisma
+    } = ctx;
+    const {
+      query
+    } = args;
     const opArgs = {
+      first: args.first,
+      skip: args.skip,
+      after: args.after,
       where: {
         published: true
       }
     };
 
-    if(query) {
+    if (query) {
       opArgs.where.OR = [{
-          title_contains: query
-        }, {
-          body_contains: query
-        }]
+        title_contains: query
+      }, {
+        body_contains: query
+      }]
     }
 
     return prisma.query.posts(opArgs, info);
   },
   myPosts(parent, args, ctx, info) {
     const userId = getUserId(ctx.request);
-    const {query} = args;
+    const {
+      query
+    } = args;
     const opArgs = {
+      first: args.first,
+      skip: args.skip,
+      after: args.after,
       where: {
         author: {
           id: userId
@@ -46,24 +66,32 @@ const Query = {
       }
     };
 
-    if(query) {
+    if (query) {
       opArgs.where.OR = [{
-          title_contains: query
-        }, {
-          body_contains: query
-        }]
+        title_contains: query
+      }, {
+        body_contains: query
+      }]
     }
 
     return ctx.prisma.query.posts(opArgs, info);
   },
   comments(parent, args, ctx, info) {
-    const {prisma} = ctx;
-    const {query} = args;
-    const opArgs = {};
+    const {
+      prisma
+    } = ctx;
+    const {
+      query
+    } = args;
+    const opArgs = {
+      first: args.first,
+      skip: args.skip,
+      after: args.after
+    };
 
-    if(query) {
+    if (query) {
       opArgs.where = {
-          text_contains: query
+        text_contains: query
       }
     }
 
@@ -85,7 +113,7 @@ const Query = {
       }
     }, info);
 
-    if(posts.length === 0) {
+    if (posts.length === 0) {
       throw new Error("Post not found");
     }
 
