@@ -1,5 +1,7 @@
 type User {
   id: ID! @id
+  updatedAt: DateTime! @updatedAt
+  createdAt: DateTime! @createdAt
   name: String!
   email: String! @unique
   password: String!
@@ -9,6 +11,8 @@ type User {
 
 type Post {
   id: ID! @id
+  updatedAt: DateTime! @updatedAt
+  createdAt: DateTime! @createdAt
   title: String!
   body: String
   published: Boolean!
@@ -18,6 +22,8 @@ type Post {
 
 type Comment {
   id: ID! @id
+  updatedAt: DateTime! @updatedAt
+  createdAt: DateTime! @createdAt
   text: String!
   author: User! @relation(name: "CommentOfUser", onDelete: SET_NULL)
   post: Post! @relation(name: "CommentOfPost", onDelete: SET_NULL)

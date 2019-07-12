@@ -1,8 +1,10 @@
+# import UserOrderByInput, BatchPayload, MutationType, PostOrderByInput, CommentOrderByInput from './generated/prisma.graphql'
+
 type Query {
-  users(query: String, first: Int, skip: Int, after: String): [User!]!
-  posts(query: String, first: Int, skip: Int, after: String): [Post!]!
-  myPosts(query: String, first: Int, skip: Int, after: String): [Post!]!
-  comments(query: String, first: Int, skip: Int, after: String): [Comment!]!
+  users(query: String, first: Int, skip: Int, after: String, orderBy: UserOrderByInput): [User!]!
+  posts(query: String, first: Int, skip: Int, after: String, orderBy: PostOrderByInput): [Post!]!
+  myPosts(query: String, first: Int, skip: Int, after: String, orderBy: PostOrderByInput): [Post!]!
+  comments(query: String, first: Int, skip: Int, after: String, orderBy: CommentOrderByInput): [Comment!]!
   post(id: ID!): Post!
   me: User!
 }
@@ -70,6 +72,8 @@ input UpdateCommentInput {
 
 type User {
   id: ID!
+  updatedAt: String!
+  createdAt: String!
   name: String!
   email: String
   password: String!
@@ -79,6 +83,8 @@ type User {
 
 type Post {
   id: ID!
+  updatedAt: String!
+  createdAt: String!
   title: String!
   body: String
   published: Boolean!
@@ -88,15 +94,11 @@ type Post {
 
 type Comment {
   id: ID!
+  updatedAt: String!
+  createdAt: String!
   text: String!
   author: User!
   post: Post!
-}
-
-enum MutationType {
-  CREATED
-  UPDATED
-  DELETED
 }
 
 type PostSubscriptionPayload {
@@ -107,8 +109,4 @@ type PostSubscriptionPayload {
 type CommentSubscriptionPayload {
   mutation: MutationType!
   node: Comment
-}
-
-type BatchPayload {
-  count: Int!
 }
