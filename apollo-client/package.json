@@ -1,0 +1,17 @@
+{
+  "name": "apollo-client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-boost": "^0.4.3",
+    "graphql": "^14.4.2",
+    "parcel-bundler": "^1.12.3"
+  }
+}
