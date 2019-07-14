@@ -66,7 +66,7 @@ test('Should update post one', async () => {
             updatePost(
                 id: "${postOne.post.id}",
                 data: {
-                    title: "This is a great title"
+                    published: false
                 }
             ) {
                 id
@@ -77,15 +77,76 @@ test('Should update post one', async () => {
         }
     `;
 
-    const reponse = await client.mutate({
+    const {
+        data
+    } = await client.mutate({
         mutation: updatePost
     });
 
-    // const exists = await prisma.exists.Post({
-    //     id: postOne.post.id,
-    //     published: false
-    // });
+    const exists = await prisma.exists.Post({
+        id: postOne.post.id,
+        published: false
+    });
 
-    // expect(data.updatePost.published).toBe(false);
-    // expect(exists).toBe(true);
-})
+    expect(data.updatePost.published).toBe(false);
+    expect(exists).toBe(true);
+});
+
+test('Should create a new post', async () => {
+    const client = getClient(userOne.jwt);
+
+    const createPost = gql `
+        mutation {
+            createPost(
+                data: {
+                    title: "Good post",
+                    body: "...",
+                    published: false
+                }
+            ) {
+                id
+                title
+                body
+                published
+            }
+        }
+    `;
+
+    const {
+        data
+    } = await client.mutate({
+        mutation: createPost
+    });
+
+    const exists = await prisma.exists.Post({
+        id: data.createPost.id,
+        published: false
+    });
+
+    expect(exists).toBe(true);
+});
+
+test('Should delete post one', async () => {
+    const client = getClient(userOne.jwt);
+
+    const deletePost = gql `
+        mutation {
+            deletePost(
+                id: "${postOne.post.id}"
+            ) {
+                id
+            }
+        }
+    `;
+
+    await client.mutate({
+        mutation: deletePost
+    });
+
+    const exists = await prisma.exists.Post({
+        id: postOne.post.id,
+        published: false
+    });
+
+    expect(exists).toBe(false);
+});
