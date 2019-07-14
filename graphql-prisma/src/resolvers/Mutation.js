@@ -3,9 +3,6 @@ import getUserId from '../utils/getUserId';
 import generateToken from '../utils/generateToken';
 import hashPassword from '../utils/hashPassword';
 import generateRandomNumberTillTen from '../utils/generateRandomNumberTillTen';
-import {
-  promises
-} from 'fs';
 
 const Mutation = {
   async createUser(parent, args, ctx, info) {
@@ -181,7 +178,7 @@ const Mutation = {
       throw new Error("Unable to update post");
     }
 
-    const isPublished = await prisma.exists.Post({
+    const isPublished = await ctx.prisma.exists.Post({
       id: args.id,
       published: true
     })
