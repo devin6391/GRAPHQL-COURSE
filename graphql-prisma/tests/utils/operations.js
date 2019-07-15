@@ -109,3 +109,27 @@ export const deleteComment = gql `
         }
     }
 `;
+
+export const subscribeToComments = gql `
+    subscription($postId: ID!) {
+        comment(postId: $postId) {
+            mutation
+            node {
+                id
+                text
+            }
+        }
+    }
+`;
+
+export const subscribeToPost = gql `
+    subscription {
+        post {
+            mutation
+            node {
+                id
+                title
+            }
+        }
+    }
+`;

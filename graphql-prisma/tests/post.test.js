@@ -12,7 +12,8 @@ import {
     myPostsQuery,
     updatePost,
     createPost,
-    deletePost
+    deletePost,
+    subscribeToPost
 } from './utils/operations';
 
 const client = getClient();
@@ -112,3 +113,20 @@ test('Should delete post two', async () => {
 
     expect(exists).toBe(false);
 });
+
+test('Should subscribe to post', async (done) => {
+    client.subscribe({
+        query: subscribeToPost
+    }).subscribe({
+        next(response) {
+            expect(response.data.post.mutation).toBe("DELETED");
+            done();
+        }
+    });
+
+    await prisma.mutation.deletePost({
+        where: {
+            id: postOne.post.id
+        }
+    })
+})
