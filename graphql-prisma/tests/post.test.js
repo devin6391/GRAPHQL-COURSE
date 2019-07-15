@@ -129,4 +129,4 @@ test('Should subscribe to post', async (done) => {
             id: postOne.post.id
         }
     })
-})
+});
