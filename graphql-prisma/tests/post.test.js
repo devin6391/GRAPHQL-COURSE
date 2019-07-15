@@ -1,8 +1,5 @@
 import "@babel/polyfill";
 import "cross-fetch/polyfill";
-import {
-    gql
-} from "apollo-boost";
 import seedDatabase, {
     userOne,
     postOne,
@@ -49,7 +46,7 @@ test('Should update post one', async () => {
     const client = getClient(userOne.jwt);
 
     const variables = {
-        id: `${postOne.post.id}`,
+        id: postOne.post.id,
         data: {
             published: false
         }
@@ -101,7 +98,7 @@ test('Should delete post two', async () => {
     const client = getClient(userOne.jwt);
 
     const variables = {
-        id: `${postTwo.post.id}`
+        id: postTwo.post.id
     }
 
     await client.mutate({
