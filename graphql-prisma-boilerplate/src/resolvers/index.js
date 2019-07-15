@@ -3,10 +3,8 @@ import {
 } from 'prisma-binding'
 import Query from "./Query";
 import Mutation from "./Mutation";
-import Post from "./Post";
 import User from "./User";
-import Comment from "./Comment";
-import Subscription from "./Subscription";
+// import Subscription from "./Subscription";
 
 const resolvers = {
     Query,
